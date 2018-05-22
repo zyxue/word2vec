@@ -23,6 +23,7 @@
 #define MAX_EXP 6
 #define MAX_SENTENCE_LENGTH 1000
 #define MAX_CODE_LENGTH 40
+#define KMER_SIZE 3
 
 const int vocab_hash_size = 30000000;  // Maximum 30 * 0.7 = 21M words in the vocabulary
 
@@ -72,22 +73,20 @@ void ReadWord(char *word, FILE *fin) {
   int a = 0, ch;
   while (!feof(fin)) {
     ch = fgetc(fin);
-    if (ch == 13) continue;
-    if ((ch == ' ') || (ch == '\t') || (ch == '\n')) {
-      if (a > 0) {
-        if (ch == '\n') ungetc(ch, fin);
-        break;
-      }
-      if (ch == '\n') {
-        strcpy(word, (char *)"</s>");
-        return;
-      } else continue;
+    if (ch == '\n') {
+      /* ignore the remainder of a seq, reset a, and restart collecting word
+         again */
+      a = 0;
+      continue;
     }
     word[a] = ch;
     a++;
-    if (a >= MAX_STRING - 1) a--;   // Truncate too long words
+    if (a % KMER_SIZE == 0) {
+      word[a] = 0;
+      printf("%s\n", word);
+      break;
+    }
   }
-  word[a] = 0;
 }
 
 // Returns hash value of a word
