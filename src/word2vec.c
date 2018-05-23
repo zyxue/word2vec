@@ -83,7 +83,7 @@ void ReadWord(char *word, FILE *fin) {
     a++;
     if (a % KMER_SIZE == 0) {
       word[a] = 0;
-      printf("%s\n", word);
+      /* printf("%s\n", word); */
       break;
     }
   }
